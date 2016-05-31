@@ -1,0 +1,78 @@
+%Calculate amplitudes for sessions
+EndPlotData_SessionAmps{1,1}='File Name';
+maxminL=0;
+maxmaxL=0;
+maxminR=0;
+maxmaxR=0;
+
+for file_number=1:alphamax
+    
+    EndPlotData_SessionAmps{file_number+1,1}=groupfiles{1,file_number};
+    
+    EventNum=handles.MainStructure.(GroupName).(groupfiles{1,file_number}(1,1:end-4)).EventNum;
+    
+    colorvector=lines(EventNum);
+    
+    EventName_Total=EventNum*4;
+    
+%I'm going to rewrite the label of EndPlotData_SessionAmps a lot, so i'll
+%have to optimize that later.
+    
+    for EventName_LoopLoc=1:4:EventName_Total
+        
+            LH_Code=sprintf('Sessions%s%s_Amps',EventNames{(EventName_LoopLoc)},EventNames{(EventName_LoopLoc+2),1});
+            RH_Code=sprintf('Sessions%s%s_Amps',EventNames{(EventName_LoopLoc+1)},EventNames{(EventName_LoopLoc+3),1});
+
+        %session_number*2 since we are storing LH and RH in one pass.    
+        for Session_Num=1:2:(session_number*2)
+           
+           true_session_num=Session_Num/2;
+           
+           EndPlotData_SessionAmps{1,Session_Num}=sprintf('LH_Ses_%s',Session_Num);
+           EndPlotData_SessionAmps{1,Session_Num+1}=sprintf('RH_Ses_%s',Session_Num+1);
+           
+           SessionDataLH(:,:)=handles.MainStructure.(GroupName).(groupfiles{1,file_number}(1,1:end-4)).(LH_Code)(Session_Num,:,:);
+           SessionDataRH(:,:)=handles.MainStructure.(GroupName).(groupfiles{1,file_number}(1,1:end-4)).(RH_Code)(Session_Num,:,:);
+           
+           sessionAVG_datapoints=length(SessionDataLH);
+           
+            [meansessionminLH,minlocLH]=(min(SessionDataLH(20:100,1)));
+            minlocLH = minlocLH + 19;
+            [meansessionmaxLH,maxlocLH]=(max(SessionDataLH(1,minloc:250)));
+            meanampLH=meansessionmaxLH-meansessionminLH;
+            
+            [meansessionminRH,minlocRH]=(min(SessionDataRH(20:100,1)));
+            minlocRH = minlocRH + 19;
+            [meansessionmaxRH,maxlocRH]=(max(SessionDataRH(1,minloc:250)));
+            meanampRH=meansessionmaxRH-meansessionminRH;
+           
+           
+           for data_loc=1:datapointsLH
+               
+               
+               
+           end
+            
+        end
+            
+        
+        if EventNum < 2
+            for Session_Num=1:session_number
+                EndPlotData_SessionAmps{1,((EventName_LoopLoc-1)*10)+(Session_Num+1)}=sprintf('LH Session %s',num2str(Session_Num));
+                EndPlotData_SessionAmps{1,((EventName_LoopLoc-1)*10)+(Session_Num+6)}=sprintf('RH Session %s',num2str(Session_Num));
+                EndPlotData_SessionAmps{file_number+1,((EventName_LoopLoc-1)*10)+(Session_Num+1)}=max(max(handles.MainStructure.(GroupName).(groupfiles{1,file_number}(1,1:end-4)).(LH_Code)(Session_Num,1,1:WindowSize)))-min(min(handles.MainStructure.(GroupName).(groupfiles{1,file_number}(1,1:end-4)).(LH_Code)(Session_Num,1,1:WindowSize)));
+                EndPlotData_SessionAmps{file_number+1,((EventName_LoopLoc-1)*10)+(Session_Num+6)}=max(max(handles.MainStructure.(GroupName).(groupfiles{1,file_number}(1,1:end-4)).(RH_Code)(Session_Num,1,1:WindowSize)))-min(min(handles.MainStructure.(GroupName).(groupfiles{1,file_number}(1,1:end-4)).(RH_Code)(Session_Num,1,1:WindowSize)));
+            end
+            
+        else
+            EndPlotData_SessionAmps{1,(EventName_LoopLoc*2)}=sprintf('LH Novel');
+            EndPlotData_SessionAmps{1,(EventName_LoopLoc*2+1)}=sprintf('RH Novel');
+            EndPlotData_SessionAmps{file_number+1,(EventName_LoopLoc*2)}=handles.MainStructure.(GroupName).(groupfiles{1,file_number}(1,1:end-4)).Amplitudes(EventName_LoopLoc,1);%LeftHemisphere
+            EndPlotData_SessionAmps{file_number+1,(EventName_LoopLoc*2+1)}=handles.MainStructure.(GroupName).(groupfiles{1,file_number}(1,1:end-4)).Amplitudes(EventName_LoopLoc,2);%RightHemisphere
+        end
+        
+        
+        
+        
+    end  
+end
